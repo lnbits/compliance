@@ -1,0 +1,7 @@
+{
+  "name": "Compliance",
+  "short_description": "Locally maintained resources for compliance in you jurisdiction.",
+  "tile": "/compliance/static/compliance.png",
+  "contributors": ["arcbtc"],
+  "min_lnbits_version": "0.0.1"
+}
