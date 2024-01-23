@@ -30,29 +30,27 @@ from . import compliance_ext
 ## Get all possible regions
 
 @compliance_ext.get("/api/v1/regions", status_code=HTTPStatus.OK)
-async def api_compliances(
-    req: Request, all_wallets: 
-    bool = Query(False)
-):
-    wallet_ids = [wallet.wallet.id]
-    if all_wallets:
-        user = await get_user(wallet.wallet.user)
-        wallet_ids = user.wallet_ids if user else []
-    return [compliance.dict() for compliance in await get_compliances(wallet_ids, req)]
+async def api_compliances():
+    url = "https://raw.githubusercontent.com/lnbits/Compiance/main/static/docs/region.json"
+    try:
+        response = await httpx.get(url)
+        response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(status_code=exc.response.status_code, detail="Unable to fetch data from the URL")
 
-## Get a single record
+    data = response.json()
+    return data
+
+## Get a single record from a region
 
 @compliance_ext.get("/api/v1/{region}", status_code=HTTPStatus.OK)
 async def api_compliance(
-    req: Request,
-    region: str):
-    compliance = await get_region(region)
-    if not compliance:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail="Record does not exist."
-        )
-    return myextension.dict()
-
-
-
-return FileResponse(file_location, media_type='application/octet-stream',filename=file_name)
+    region: str
+):
+    url = f"https://raw.githubusercontent.com/lnbits/Compiance/main/static/docs/{region}/README.md"
+    try:
+        response = await httpx.get(url)
+        response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(status_code=exc.response.status_code, detail="Unable to fetch data from the URL")
+    return response

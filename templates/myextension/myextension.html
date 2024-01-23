@@ -1,47 +1,20 @@
 {% extends "public.html" %} {% block page %}
 <div class="row q-col-gutter-md justify-center">
   <div class="col-12 col-sm-6 col-md-5 col-lg-4">
-    <q-card class="q-pa-lg">
-      <q-card-section class="q-pa-none">
-        <div class="text-center">
-          <a class="text-secondary" href="lightning:{{ lnurl }}">
-            <q-responsive :ratio="1" class="q-mx-md">
-              <qrcode
-                :value="qrValue"
-                :options="{width: 800}"
-                class="rounded-borders"
-              ></qrcode>
-            </q-responsive>
-          </a>
-        </div>
-        <div class="row q-mt-lg q-gutter-sm">
-          <q-btn outline color="grey" @click="copyText(qrValue)"
-            >Copy LNURL </q-btn
-          >
-        </div>
+    <q-card dark bordered class="bg-grey-9 my-card">
+      <q-card-section>
+        {% raw %} {{ parsedDoc }}
       </q-card-section>
-
-      <div class="row justify-start q-mt-lg">
-        <div class="col col-md-auto">
-          <q-btn outline style="color: primmary;" @click="qrValue = '{{ lnurlpay }}'">lnurlpay</q-btn>
-      
-        </div>
-        <div class="col col-md-auto">
-          <q-btn outline style="color: primmary;" @click="qrValue = '{{ lnurlwithdraw }}'">lnurlwithdraw</q-btn>
-      
-        </div>
-      </div>
-
     </q-card>
   </div>
   <div class="col-12 col-sm-6 col-md-5 col-lg-4 q-gutter-y-md">
     <q-card>
       <q-card-section>
-        <h6 class="text-subtitle1 q-mb-sm q-mt-none">Public page</h6>
+        <h6 class="text-subtitle1 q-mb-sm q-mt-none">{{region}} {% endraw %} doc for compliance.</h6>
         <p class="q-my-none">
-          Moat extensions have a public page that can be shared
-          (this page will still be accessible even if you have restricted 
-          access to your LNbits install).
+          Contributors to this doc are:
+          <ul>
+            <li> some shit </li>
           <br/>
           In this example when a user pays the LNURLpay it triggers an event via a websocket waiting for the payment.
         </p>.</p>
@@ -62,73 +35,27 @@
     mixins: [windowMixin],
     data: function () {
       return {
-        qrValue: '',
-        myExtensionID: ''
+        region: '{{ region }}',
+        parsedDoc: ''
       }
     },
     created: function () {
-      this.qrValue = '{{lnurlpay}}'
-      this.myExtensionID = '{{compliance_id}}'
-      this.connectWebocket(this.myExtensionID)
+      readme = ''
+      fetch('https://raw.githubusercontent.com/lnbits/Compiance/main/static/docs/' + this.region + '/README.md')
+        .then(data => readme = data)
+        .catch(error => console.error('Error:', error))
+
+      const markdownParser = (text) => {
+	      const toHTML = text
+		    .replace(/^### (.*$)/gim, '<h3>$1</h3>') // h3 tag
+		    .replace(/^## (.*$)/gim, '<h2>$1</h2>') // h2 tag
+		    .replace(/^# (.*$)/gim, '<h1>$1</h1>') // h1 tag
+		    .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') // bold text
+		    .replace(/\*(.*)\*/gim, '<i>$1</i>') // italic text
+	    return toHTML.trim() // using trim method to remove whitespace
+    }
+    this.parsedDoc = markdownParser(readme) 
     },
-    methods: {
-      makeItRain() {
-        document.getElementById("vue").disabled = true
-        var end = Date.now() + (2 * 1000)
-        var colors = ['#FFD700', '#ffffff']
-        function frame() {
-          confetti({
-            particleCount: 2,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0 },
-            colors: colors,
-            zIndex: 999999
-          })
-          confetti({
-            particleCount: 2,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1 },
-            colors: colors,
-            zIndex: 999999
-          })
-          if (Date.now() < end) {
-            requestAnimationFrame(frame)
-          }
-          else {
-            document.getElementById("vue").disabled = false
-          }
-        }
-        frame()
-      },
-      connectWebocket(id){
-      //////////////////////////////////////////////////
-      ///wait for pay action to happen and do a thing////
-      ///////////////////////////////////////////////////
-      self = this
-        if (location.protocol !== 'http:') {
-        localUrl =
-          'wss://' +
-          document.domain +
-          ':' +
-          location.port +
-          '/api/v1/ws/' +
-          id
-      } else {
-        localUrl =
-          'ws://' +
-          document.domain +
-          ':' +
-          location.port +
-          '/api/v1/ws/' +
-          id
-      }
-      this.connection = new WebSocket(localUrl)
-      this.connection.onmessage = function (e) {
-        self.makeItRain()
-      }
-      }
     },
   })
 </script>
