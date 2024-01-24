@@ -4,7 +4,7 @@
   <div class="col-12 col-sm-6 col-md-5 col-lg-4">
     <q-card dark bordered class="bg-grey-9 my-card">
       <q-card-section>
-        <q-select :onclick="getRegionDoc(region)" v-model="region" :options="options" label="Standard"></q-select>
+        <q-select :onclick="getRegionDoc(region)" v-model="region" :options="options" label="Select a region"></q-select>
       </q-card-section>
     </q-card>
 
@@ -42,24 +42,37 @@
     mixins: [windowMixin],
     data: function () {
       return {
-        options: [],
-        region: '',
+        options: ["GB"],
+        region: 'GB',
         parsedDoc: '',
         regionContributors: '',
       }
     },
-    created: function () {
-
-    },
     methods: {
-      async getRegionDoc(region) {
+      async getRegions() {
+        regions = []
+        await fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/regions.json')
+          .then(response => response.json())  
+          .then(data => regions = data)
+          .catch(error => console.error('Error:', error))
+        console.log(regions)
+        return regions
+      },
+      getRegionDoc(region) {
       rawReadme = ''
-      fetch('https://raw.githubusercontent.com/lnbits/Compiance/main/static/docs/' + region + '/README.md')
+      try {
+        fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/' + region + '/README.md')
         .then(data => rawReadme = data)
         .catch(error => console.error('Error:', error))
-      this.parseDoc(rawReadme)
+        this.parseDoc(rawReadme)
+      } catch (error) {
+        fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/ERROR/README.md')
+        .then(data => rawReadme = data)
+        .catch(error => console.error('Error:', error))
+        this.parseDoc(rawReadme)
+      }
       },
-      async parseDoc(rawReadme) {
+      parseDoc(rawReadme) {
         const markdownParser = (text) => {
           const toHTML = text
             .replace(/^### (.*$)/gim, '<h3>$1</h3>') // h3 tag
@@ -72,6 +85,8 @@
         this.parsedDoc = markdownParser(rawReadme)
       },
     },
+    created: async function () {
+      this.options = await this.getRegions()
     },
   })
 </script>

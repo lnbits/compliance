@@ -41,7 +41,7 @@
     },
     created: function () {
       readme = ''
-      fetch('https://raw.githubusercontent.com/lnbits/Compiance/main/static/docs/' + this.region + '/README.md')
+      fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/' + this.region + '/README.md')
         .then(data => readme = data)
         .catch(error => console.error('Error:', error))
 
