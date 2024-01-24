@@ -1,0 +1,1 @@
+# Eventually premium services could be offered by the compliance reps in each region, at that point perhaps a migrations file will be needed to add the extra fields to the database.
