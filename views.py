@@ -10,7 +10,6 @@ from lnbits.decorators import check_user_exists
 from lnbits.settings import settings
 
 from . import compliance_ext, compliance_renderer
-from .crud import get_compliance
 
 temps = Jinja2Templates(directory="temps")
 
