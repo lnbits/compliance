@@ -4,31 +4,30 @@
   <div class="col-12 col-sm-6 col-md-5 col-lg-4">
     <q-card dark bordered class="bg-grey-9 my-card">
       <q-card-section>
-        <q-select :onclick="getRegionDoc(region)" v-model="region" :options="options" label="Select a region"></q-select>
+        <q-select :onclick="updateDoc()" v-model="region" :options="options" label="Select a region"></q-select>
       </q-card-section>
     </q-card>
 
     <q-card dark bordered class="bg-grey-9 my-card">
-      <q-card-section>
-        {% raw %} {{ parsedDoc }}
+      <q-card-section id="parsedDoc">
       </q-card-section>
     </q-card>
   </div>
   <div class="col-12 col-sm-6 col-md-5 col-lg-4 q-gutter-y-md">
     <q-card>
       <q-card-section>
-        <h6 class="text-subtitle1 q-mb-sm q-mt-none">{{region}} {% endraw %} doc for compliance.</h6>
+        <h6 class="text-subtitle1 q-mb-sm q-mt-none">{% raw %}{{region}} {% endraw %} doc for compliance.</h6>
         <p class="q-my-none">
           Contributors to this doc are:
-          <ul>
-            <li> {{ regionContributors }} </li>
-          <br/>
+        <ul>
+          <li> {{ regionContributors }} </li>
+          <br />
           In this example when a user pays the LNURLpay it triggers an event via a websocket waiting for the payment.
-        </p>.</p>
+          </p>.</p>
       </q-card-section>
       <q-card-section class="q-pa-none">
         <q-separator></q-separator>
-        <q-list>  </q-list>
+        <q-list> </q-list>
       </q-card-section>
     </q-card>
   </div>
@@ -44,7 +43,6 @@
       return {
         options: ["GB"],
         region: 'GB',
-        parsedDoc: '',
         regionContributors: '',
       }
     },
@@ -52,38 +50,37 @@
       async getRegions() {
         regions = []
         await fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/regions.json')
-          .then(response => response.json())  
+          .then(response => response.json())
           .then(data => regions = data)
           .catch(error => console.error('Error:', error))
-        console.log(regions)
         return regions
       },
-      getRegionDoc(region) {
-      rawReadme = ''
-      try {
+      async getRegionDoc(region) {
         fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/' + region + '/README.md')
-        .then(data => rawReadme = data)
-        .catch(error => console.error('Error:', error))
-        this.parseDoc(rawReadme)
-      } catch (error) {
-        fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/ERROR/README.md')
-        .then(data => rawReadme = data)
-        .catch(error => console.error('Error:', error))
-        this.parseDoc(rawReadme)
+          .then(data => {
+            if (data.status != 200) {
+              document.getElementById("parsedDoc").innerHTML = this.markdownParser("<h4>It's not working homes, try again bandahoe!</h4>")
+            }
+            else {
+              data.text().then(text => {
+                document.getElementById("parsedDoc").innerHTML = this.markdownParser(text)
+              })
+            }
+          })
+          .catch(error => console.error('Error:', error))
+      },
+      markdownParser(text) {
+        const toHTML = text
+          .replace(/^### (.*$)/gim, '<div class="text-subtitle3">$1</div>') 
+          .replace(/^## (.*$)/gim, '<div class="text-h6">$1</div>') 
+          .replace(/^# (.*$)/gim, '<div class="text-h5">$1</div>') 
+          .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') 
+          .replace(/\*(.*)\*/gim, '<i>$1</i>') 
+        return toHTML.trim() 
+      },
+      updateDoc() {
+        this.getRegionDoc(this.region)
       }
-      },
-      parseDoc(rawReadme) {
-        const markdownParser = (text) => {
-          const toHTML = text
-            .replace(/^### (.*$)/gim, '<h3>$1</h3>') // h3 tag
-            .replace(/^## (.*$)/gim, '<h2>$1</h2>') // h2 tag
-            .replace(/^# (.*$)/gim, '<h1>$1</h1>') // h1 tag
-            .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') // bold text
-            .replace(/\*(.*)\*/gim, '<i>$1</i>') // italic text
-          return toHTML.trim() // using trim method to remove whitespace
-        }
-        this.parsedDoc = markdownParser(rawReadme)
-      },
     },
     created: async function () {
       this.options = await this.getRegions()
