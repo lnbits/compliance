@@ -12,5 +12,4 @@ Your should prob..
 * blah
 
 ## KYC
-Blah
 ### thresholds
