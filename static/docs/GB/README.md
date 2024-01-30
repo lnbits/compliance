@@ -16,4 +16,4 @@ Some text
 blah
 ## Extra
 
-Conntrubute to this <a href="https://github.com/lnbits/compliance/blob/main/static/docs/GB/README.md">doc</a>.
+
