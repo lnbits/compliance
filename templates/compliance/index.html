@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% from "macros.jinja" import window_vars with context
 %} {% block page %}
 <div class="row q-col-gutter-md">
-  <div class="col-12 col-sm-6 col-md-5 col-lg-4">
+  <div class="col-9">
     <q-card dark bordered class="bg-grey-9 my-card">
       <q-card-section>
         <q-select :onclick="updateDoc()" v-model="region" :options="options" label="Select a region"></q-select>
@@ -13,21 +13,16 @@
       </q-card-section>
     </q-card>
   </div>
-  <div class="col-12 col-sm-6 col-md-5 col-lg-4 q-gutter-y-md">
+  <div class="col-3">
     <q-card>
       <q-card-section>
         <h6 class="text-subtitle1 q-mb-sm q-mt-none">{% raw %}{{region}} {% endraw %} doc for compliance.</h6>
         <p class="q-my-none">
+          The complaince guidance in this doc come with no gauruntee and the authors accept no responsibility. 
           Contributors to this doc are:
         <ul>
-          <li> {{ regionContributors }} </li>
-          <br />
-          In this example when a user pays the LNURLpay it triggers an event via a websocket waiting for the payment.
+          <li> [CONTRIBUTORS DETAILS WILL GO HERE]{{ regionContributors }} </li>
           </p>.</p>
-      </q-card-section>
-      <q-card-section class="q-pa-none">
-        <q-separator></q-separator>
-        <q-list> </q-list>
       </q-card-section>
     </q-card>
   </div>
@@ -73,7 +68,7 @@
         const toHTML = text
           .replace(/^### (.*$)/gim, '<div class="text-subtitle3">$1</div>') 
           .replace(/^## (.*$)/gim, '<div class="text-h6">$1</div>') 
-          .replace(/^# (.*$)/gim, '<div class="text-h5">$1</div>') 
+          .replace(/^# (.*$)/gim, '<div class="text-h5">$1</div>')
           .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') 
           .replace(/\*(.*)\*/gim, '<i>$1</i>') 
         return toHTML.trim() 
