@@ -1,0 +1,91 @@
+{% extends "public.html" %} {% block page %}
+<div class="row q-col-gutter-md">
+  <div class="col-9">
+    <q-card dark bordered class="bg-grey-9 my-card">
+      <q-card-section id="parsedDoc">
+      </q-card-section>
+      <br/>Contribute to this doc by submitting a pull request <a class="text-primary" :href="'https://github.com/lnbits/compliance/tree/main/static/docs/' + region">here</a>
+    </q-card>
+  </div>
+  <div class="col-3">
+    <q-card>
+      <q-card-section>
+        <h6 class="text-subtitle1 q-mb-sm q-mt-none">{% raw %}{{region}} {% endraw %} doc for compliance.</h6>
+        <p class="q-my-none">
+          The complaince guidance in this doc come with no gauruntee and the authors accept no responsibility. 
+          <br/><br/>
+          <b>Contributors:</b>
+        <div v-if="regionContributors != null" v-for="contributor in regionContributors"
+        :key="contributor.email" class="q-pt-sm">
+ {% raw %}
+ <q-separator></q-separator>
+       <div v-if="contributor.name">Name: {{contributor.name}} <br/></div>
+       <div v-if="contributor.organisation">Organisation: {{contributor.organisation}} <br/></div>
+       <div v-if="contributor.website">Website: <a class="text-primary" :href="contributor.website">{{contributor.website}}</a> <br/></div>
+       <div v-if="contributor.email">Email: <a class="text-primary" :href="'mailto:' + contributor.email">{{contributor.email}}</a> <br/></div>
+       <div v-if="contributor.phone">Phone: {{contributor.phone}}</a> <br/></div>
+
+        {% endraw %}
+      </div>
+      </q-card-section>
+      <q-separator></q-separator>
+      {% include "compliance/_api_docs.html" %}
+    </q-list>
+    </q-card>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  Vue.component(VueQrcode.name, VueQrcode)
+
+  new Vue({
+    el: '#vue',
+    mixins: [windowMixin],
+    data: function () {
+      return {
+        options: ["GB"],
+        region: '{{region}}',
+        regionContributors: null
+      }
+    },
+    methods: {
+      async getRegionDoc(region) {
+        fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/' + region + '/README.md')
+          .then(data => {
+            if (data.status != 200) {
+              document.getElementById("parsedDoc").innerHTML = this.markdownParser("<h4>It's not working homes, try again bandahoe!</h4>")
+            }
+            else {
+              data.text().then(text => {
+                document.getElementById("parsedDoc").innerHTML = this.markdownParser(text)
+              })
+            }
+          })
+          .catch(error => console.error('Error:', error))
+      },
+      async getRegionContributors(region) {
+        contributors = []
+        await fetch('https://raw.githubusercontent.com/lnbits/compliance/main/static/docs/' + region + '/contributors.json')
+          .then(response => response.json())
+          .then(data => contributors = data)
+          .catch(error => console.error('Error:', error))
+          this.regionContributors = contributors
+      },
+      markdownParser(text) {
+        const toHTML = text
+          .replace(/^### (.*$)/gim, '<div class="text-subtitle3">$1</div>') 
+          .replace(/^## (.*$)/gim, '<div class="text-h6">$1</div>') 
+          .replace(/^# (.*$)/gim, '<div class="text-h5">$1</div>')
+          .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>') 
+          .replace(/\*(.*)\*/gim, '<i>$1</i>') 
+          .replace(/^#i# (.*$)/gim, '<div class="text-h5">$1</div>')
+        return toHTML.trim() 
+      }
+    },
+    created: async function () {
+      this.getRegionDoc(this.region)
+      this.getRegionContributors(this.region)
+    },
+  })
+</script>
+{% endblock %}

@@ -37,7 +37,7 @@ async def compliance(request: Request, region):
         {
             "request": request,
             "region": region,
-            "web_manifest": f"/compliance/manifest/{compliance_id}.webmanifest",
+            "web_manifest": f"/compliance/manifest/{region}.webmanifest",
         },
     )
 
