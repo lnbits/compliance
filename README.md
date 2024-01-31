@@ -1,3 +1,4 @@
+![image](https://github.com/lnbits/compliance/assets/33088785/452823f1-917d-4956-845c-636f1078ed20)
 
 # Draft: Compliance - An [LNbits](https://github.com/lnbits/lnbits) Extension
 
