@@ -15,7 +15,7 @@ compliance_ext: APIRouter = APIRouter(
 temp_static_files = [
     {
         "path": "/compliance/static",
-        "name": "temp_static",
+        "name": "compliance_static",
     }
 ]
 
