@@ -6,4 +6,4 @@
 Records are maintained by a local professionals, such as legal, accountants, and compliance officers. Their details are available once you select a region.
 
 ### Get involved
-Interested in contributing? Add a pull request.
+Do you work in compliance and interested in contributing? Add a pull request to `/static/docs/YOUR-COUNTRY`
